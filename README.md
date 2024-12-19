@@ -5,7 +5,9 @@ This repository is a structured learning and practice plan to master Register-Tr
 <summary><b> Day 1:</b> Design and verify a 2:1 mux </summary>   
 <br>
 Design of a 2x1 mux ;
-  
+
+![image](https://github.com/user-attachments/assets/9a0e786b-4641-49d2-a9fe-78bfd3a8e361)
+
 verilog code
 -
 ```
@@ -53,6 +55,94 @@ endmodule
 <details>
 <summary><b> Day 2:</b> Design and verify various flavours of a D flip-flop </summary>   
 <br>
+  
+Question :
+--
 
+![image](https://github.com/user-attachments/assets/a3094513-5765-4a54-b57e-c141d65bac9b)
 
+verilog design code:
+-
+````
+module day2 (
+  input     logic      clk,
+  input     logic      sync_reset,    // Synchronous reset signal
+  input     logic      async_reset,   // Asynchronous reset signal
+
+  input     logic      d_i,
+
+  output    logic      q_norst_o,
+  output    logic      q_syncrst_o,
+  output    logic      q_asyncrst_o
+);
+  
+  // Flip-flop without reset
+  always_ff @(posedge clk) begin
+    q_norst_o <= d_i;
+  end
+
+  // Flip-flop with synchronous reset
+  always_ff @(posedge clk) begin
+    if (sync_reset)
+      q_syncrst_o <= 1'b0;
+    else
+      q_syncrst_o <= d_i;
+  end
+
+  // Flip-flop with asynchronous reset
+  always_ff @(posedge clk or posedge async_reset) begin
+    if (async_reset)
+      q_asyncrst_o <= 1'b0;
+    else
+      q_asyncrst_o <= d_i;
+  end
+
+endmodule
+``````
+Testbench code:
+-
+````
+module day2_tb ();
+
+  logic      clk;
+  logic      reset;
+
+  logic      d_i;
+
+  logic      q_norst_o;
+  logic      q_syncrst_o;
+  logic      q_asyncrst_o;
+
+  day2 DAY2 (.*);
+
+  // Generate clk
+  always begin
+    clk = 1'b1;
+    #5;
+    clk = 1'b0;
+    #5;
+  end
+
+  // Stimulus
+  initial begin
+    reset = 1'b1;
+    d_i = 1'b0;
+    @(posedge clk);
+    reset = 1'b0;
+    @(posedge clk);
+    d_i = 1'b1;
+    @(posedge clk);
+    @(posedge clk);
+    @(negedge clk);
+    reset = 1'b1;
+    @(posedge clk);
+    @(posedge clk);
+    reset = 1'b0;
+    @(posedge clk);
+    @(posedge clk);
+    $finish();
+  end
+
+endmodule
+```````
 </details>
